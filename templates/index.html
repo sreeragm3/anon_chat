@@ -1,33 +1,38 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Decentralized Chat</title>
-    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <title>Chat App</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.6.1/socket.io.js"></script>
+    <script>
+        const socket = io();
+
+        window.onload = function() {
+            const username = "{{ username }}";  // Rendered from Flask
+            const chatBox = document.getElementById('chat-box');
+            const messageInput = document.getElementById('message-input');
+            const sendButton = document.getElementById('send-button');
+
+            sendButton.onclick = function() {
+                const message = messageInput.value;
+                if (message.trim()) {
+                    socket.send(message);
+                    messageInput.value = '';  // Clear the input box
+                }
+            };
+
+            socket.on('message', function(msg) {
+                const messageElem = document.createElement('p');
+                messageElem.textContent = msg;
+                chatBox.appendChild(messageElem);
+            });
+        };
+    </script>
 </head>
 <body>
-    <h1>Decentralized Chat</h1>
-    <div id="messages"></div>
-    <input type="text" id="messageInput" placeholder="Type a message..." />
-    <button onclick="sendMessage()">Send</button>
-
-    <script>
-        var socket = io();
-
-        socket.on('message', function(msg) {
-            const messagesDiv = document.getElementById('messages');
-            const newMessage = document.createElement('div');
-            newMessage.textContent = msg;
-            messagesDiv.appendChild(newMessage);
-        });
-
-        function sendMessage() {
-            const messageInput = document.getElementById('messageInput');
-            const message = messageInput.value;
-            socket.send(message);
-            messageInput.value = '';
-        }
-    </script>
+    <h1>Welcome to the Chat!</h1>
+    <div id="chat-box" style="border: 1px solid #ccc; height: 300px; overflow-y: scroll; margin-bottom: 10px;">
+    </div>
+    <input id="message-input" type="text" placeholder="Type your message here..." style="width: 80%;">
+    <button id="send-button">Send</button>
 </body>
 </html>
